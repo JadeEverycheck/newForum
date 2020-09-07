@@ -60,15 +60,15 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u := User{}
-	for _, user := range users {
+	userIndex := -1
+	for i, user := range users {
 		if user.Id == indice {
-			u = user
+			userIndex = i
 			break
 		}
 	}
 
-	if u.Id == 0 {
+	if userIndex < 0 {
 		response.NotFound(w)
 		return
 	}
@@ -80,13 +80,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body.Close()
 	var updated User
-	err = json.Unmarshal(body, &u)
+	err = json.Unmarshal(body, &updated)
 	if err != nil {
 		response.BadRequest(w, err.Error())
 		return
 	}
-	u.Mail = updated.Mail
-	response.Ok(w, u)
+	users[userIndex].Mail = updated.Mail
+	response.Ok(w, users[userIndex])
 
 }
 
@@ -97,13 +97,6 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		response.Deleted(w)
 		return
 	}
-
-	for i, user := range users {
-		if user.Id == indice {
-			users = append(users[:(i-1)], users[i:]...)
-			response.Deleted(w)
-			return
-		}
-	}
+	removeUser(User{Id: indice})
 	response.Deleted(w)
 }

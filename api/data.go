@@ -19,6 +19,21 @@ func appendUser(email string) User {
 	return user
 }
 
+func removeUser(u User) {
+	index := -1
+	for i, user := range users {
+		if user.Id == u.Id {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		return
+	}
+	copy(users[index:], users[index+1:])
+	users = users[:len(users)-1]
+}
+
 func appendMessage(id int, mail string) {
 	messageCount++
 	u := User{id, mail}
