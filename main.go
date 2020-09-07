@@ -32,7 +32,7 @@ func main() {
 	r.Get("/discussions/messages/{id}", api.GetMessage)
 	r.Get("/discussions/{id}/messages", api.GetAllMessage)
 	// r.Post("/discussions/{id}/messages", api.CreateMessage)
-	// r.Delete("/discussions/messages/{id}", api.DeleteMessage)
+	r.Delete("/discussions/messages/{id}", api.DeleteMessage)
 
 	http.ListenAndServe(":8080", r)
 }

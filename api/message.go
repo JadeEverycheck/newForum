@@ -30,20 +30,24 @@ func appendMessage(uId int, content string, disc *Discussion) Message {
 	return message
 }
 
-// func removeMessage(m Message) {
-// 	index := -1
-// 	for i, mess := range discussions {
-// 		if mess.Id == m.Id {
-// 			index = i
-// 			break
-// 		}
-// 	}
-// 	if index == -1 {
-// 		return
-// 	}
-// 	copy(discussions.Mess[index:], discussions.Mess[index+1:])
-// 	discussions.Mess = discussions.Mess[:len(discussions.Mess)-1]
-// }
+func removeMessage(m Message) {
+	index := -1
+	discIndex := -1
+	for i, disc := range discussions {
+		for j, mess := range disc.Mess {
+			if mess.Id == m.Id {
+				index = j
+				discIndex = i
+				break
+			}
+		}
+	}
+	if index == -1 || discIndex == -1 {
+		return
+	}
+	copy(discussions[discIndex].Mess[index:], discussions[discIndex].Mess[index+1:])
+	discussions[discIndex].Mess = discussions[discIndex].Mess[:len(discussions[discIndex].Mess)-1]
+}
 
 func GetAllMessage(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
@@ -109,14 +113,14 @@ func GetMessage(w http.ResponseWriter, r *http.Request) {
 // 	w.WriteHeader(http.StatusCreated)
 // }*/
 
-// func deleteMessage(w http.ResponseWriter, r *http.Request) {
-// 	id := chi.URLParam(r, "id")
-// 	indice, err := strconv.Atoi(id)
-// 	if err != nil {
-// 		response.Deleted(w)
-// 		return
-// 	}
-// 	removeMessage(Message{Id: indice})
-// 	response.Deleted(w)
+func DeleteMessage(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	indice, err := strconv.Atoi(id)
+	if err != nil {
+		response.Deleted(w)
+		return
+	}
+	removeMessage(Message{Id: indice})
+	response.Deleted(w)
 
-// }
+}
