@@ -2,53 +2,64 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
+	"forum/response"
 	"github.com/go-chi/chi"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 )
 
 type Discussion struct {
-	id    int
-	sujet string
-	mess  []Message
+	Id      int       `json:"id"`
+	Subject string    `json:"subject"`
+	Mess    []Message `json:"message,omitempty"`
 }
 
-func requestSayAllDiscussion(w http.ResponseWriter, r *http.Request) {
-	for disc := range discussions {
-		e, err := json.MarshalIndent(discussions[disc].sujet, "", "  ")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Println(err)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, string(e))
-	}
+func GetAllDiscussion(w http.ResponseWriter, r *http.Request) {
+	response.Ok(w, discussions)
 }
 
-func requestSayDiscussion(w http.ResponseWriter, r *http.Request) {
+func GetDiscussion(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	indice, err := strconv.Atoi(id)
 	if err != nil {
-		fmt.Println(err)
+		response.BadRequest(w, err.Error())
 		return
 	}
-	if (indice - 1) < len(discussions) {
-		fmt.Println(discussions[indice-1].mess)
-		e, err := json.MarshalIndent(discussions[indice-1].sujet, "", "  ")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Println(err)
+
+	for _, disc := range discussions {
+		if disc.Id == indice {
+			response.Ok(w, disc)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, string(e))
-		return
-		/*for m := range discussions[indice-1].mess {
-			fmt.Fprintln(w, string(discussions[indice-1].mess[m].id))
-		}*/
 	}
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("Cette discussion n'existe pas"))
+	response.NotFound(w)
+}
+
+func CreateDiscussion(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		response.ServerError(w, err.Error())
+		return
+	}
+	r.Body.Close()
+	var d Discussion
+	err = json.Unmarshal(body, &d)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+	d = appendDiscussion(d.Subject)
+	response.Created(w, d)
+}
+
+func DeleteDiscussion(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	indice, err := strconv.Atoi(id)
+	if err != nil {
+		response.Deleted(w)
+		return
+	}
+	removeDiscussion(Discussion{Id: indice})
+	response.Deleted(w)
 }

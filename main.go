@@ -27,15 +27,14 @@ func main() {
 	// 	//r.Post("/", createMessage)
 	// 	//r.Put("/{id}", updateMessage)
 	// 	r.Delete("/{id}", api.deleteMessage)
-
 	// })
-	// r.Route("/discussions", func(r chi.Router) {
-	// 	r.Get("/{id}", api.getDiscussion)
-	// 	r.Get("/", api.getAllDiscussion)
-	// 	//r.Post("/", createMessage)
-	// 	//r.Put("/{id}", updateMessage)
-	// 	//r.Delete("/{id}", deleteMessage)
 
-	// })
+	r.Route("/discussions", func(r chi.Router) {
+		r.Get("/{id}", api.GetDiscussion)
+		r.Get("/", api.GetAllDiscussion)
+		r.Post("/", api.CreateDiscussion)
+		r.Delete("/{id}", api.DeleteDiscussion)
+	})
+
 	http.ListenAndServe(":8080", r)
 }

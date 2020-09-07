@@ -40,13 +40,30 @@ func appendMessage(id int, mail string) {
 	messages = append(messages, Message{messageCount, u, time.Now()})
 }
 
-func appendDiscussion(sujet string) {
+func appendDiscussion(sujet string) Discussion {
 	discussionCount++
-	discussions = append(discussions, Discussion{discussionCount, sujet, messageInit})
+	discussion := Discussion{discussionCount, sujet, messageInit}
+	discussions = append(discussions, discussion)
+	return discussion
 }
 
 func appendMessToDisc(disc Discussion, mess Message) {
-	disc.mess = append(disc.mess, Message{})
+	disc.Mess = append(disc.Mess, Message{})
+}
+
+func removeDiscussion(d Discussion) {
+	index := -1
+	for i, disc := range discussions {
+		if disc.Id == d.Id {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		return
+	}
+	copy(discussions[index:], discussions[index+1:])
+	discussions = discussions[:len(discussions)-1]
 }
 
 func InitData() {
@@ -58,7 +75,7 @@ func InitData() {
 	appendMessage(users[1].Id, users[1].Mail)
 	appendDiscussion("Present")
 	appendDiscussion("Futur")
-	disc1 := Discussion{discussions[0].id, discussions[0].sujet, discussions[0].mess}
+	disc1 := Discussion{discussions[0].Id, discussions[0].Subject, discussions[0].Mess}
 	m1 := Message{messages[0].id, messages[0].user, messages[0].date}
 	appendMessToDisc(disc1, m1)
 }
