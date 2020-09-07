@@ -1,4 +1,4 @@
-#API Rest for a basic forum
+# API Rest for a basic forum
 To launch the project, clone then execute the following command : 
 
 ```bash
