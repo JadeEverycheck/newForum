@@ -12,9 +12,11 @@ var messageInit []Message
 var discussions = make([]Discussion, 0, 20)
 var discussionCount = 0
 
-func appendUser(email string) {
+func appendUser(email string) User {
 	userCount++
-	users = append(users, User{userCount, email})
+	user := User{userCount, email}
+	users = append(users, user)
+	return user
 }
 
 func appendMessage(id int, mail string) {
@@ -36,9 +38,9 @@ func InitData() {
 	appendUser("test1@example.com")
 	appendUser("test2@example.com")
 	appendUser("test3@example.com")
-	appendMessage(users[0].id, users[0].mail)
-	appendMessage(users[0].id, users[0].mail)
-	appendMessage(users[1].id, users[1].mail)
+	appendMessage(users[0].Id, users[0].Mail)
+	appendMessage(users[0].Id, users[0].Mail)
+	appendMessage(users[1].Id, users[1].Mail)
 	appendDiscussion("Present")
 	appendDiscussion("Futur")
 	disc1 := Discussion{discussions[0].id, discussions[0].sujet, discussions[0].mess}
