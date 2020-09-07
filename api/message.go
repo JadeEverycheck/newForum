@@ -1,9 +1,10 @@
 package api
 
 import (
-	//"encoding/json"
+	"encoding/json"
 	"forum/response"
 	"github.com/go-chi/chi"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -84,34 +85,47 @@ func GetMessage(w http.ResponseWriter, r *http.Request) {
 	response.NotFound(w)
 }
 
-// 	// id := chi.URLParam(r, "id")
-// 	// indice, err := strconv.Atoi(id)
-// 	// if err != nil {
-// 	// 	fmt.Println(err)
-// 	// 	return
-// 	// }
-// 	// if (indice - 1) < len(messages) {
-// 	// 	e, err := json.MarshalIndent(messages[indice-1].user.Mail, "", "  ")
-// 	// 	if err != nil {
-// 	// 		w.WriteHeader(http.StatusInternalServerError)
-// 	// 		fmt.Println(err)
-// 	// 		return
-// 	// 	}
-// 	// 	w.WriteHeader(http.StatusOK)
-// 	// 	fmt.Fprintln(w, string(e))
-// 	// 	return
-// 	// }
-// 	// w.WriteHeader(http.StatusNotFound)
-// 	// w.Write([]byte("Ce message n'existe pas"))
-// }
+func CreateMessage(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	indice, err := strconv.Atoi(id)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+	d := &Discussion{}
+	for i, disc := range discussions {
+		if disc.Id == indice {
+			d = &discussions[i]
+			break
+		}
+	}
+	if d.Id == 0 {
+		response.NotFound(w)
+	}
 
-// /*func createMessage(w http.ResponseWriter, r *http.Request) {
-// 	buf := new(bytes.Buffer)
-// 	buf.ReadFrom(r.Body)
-// 	messageCount++
-// 	appendMessage(buf.String())
-// 	w.WriteHeader(http.StatusCreated)
-// }*/
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		response.ServerError(w, err.Error())
+		return
+	}
+	r.Body.Close()
+	var m Message
+	err = json.Unmarshal(body, &m)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+	username, _, _ := r.BasicAuth()
+	user := User{}
+	for _, u := range users {
+		if u.Mail == username {
+			user = u
+		}
+	}
+
+	m = appendMessage(user.Id, m.Content, d)
+	response.Created(w, m)
+}
 
 func DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
@@ -122,5 +136,4 @@ func DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	}
 	removeMessage(Message{Id: indice})
 	response.Deleted(w)
-
 }

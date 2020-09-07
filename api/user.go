@@ -10,16 +10,26 @@ import (
 )
 
 type User struct {
-	Id   int    `json:"id"`
-	Mail string `json:"mail"`
+	Id       int    `json:"id"`
+	Mail     string `json:"mail"`
+	Password string `json:"-"`
+}
+
+type CreateUserType struct {
+	Mail     string `json:"mail"`
+	Password string `json:"password"`
 }
 
 var users = make([]User, 0, 20)
 var userCount = 0
 
-func appendUser(email string) User {
+func appendUser(email string, password string) User {
 	userCount++
-	user := User{userCount, email}
+	user := User{
+		Id:       userCount,
+		Mail:     email,
+		Password: password,
+	}
 	users = append(users, user)
 	return user
 }
@@ -67,14 +77,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.Body.Close()
-	var u User
+	var u CreateUserType
 	err = json.Unmarshal(body, &u)
 	if err != nil {
 		response.BadRequest(w, err.Error())
 		return
 	}
-	u = appendUser(u.Mail)
-	response.Created(w, u)
+	response.Created(w, appendUser(u.Mail, u.Password))
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {

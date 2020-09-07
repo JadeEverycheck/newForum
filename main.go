@@ -23,16 +23,17 @@ func main() {
 	})
 
 	r.Route("/discussions", func(r chi.Router) {
+		r.Use(middleware.BasicAuth("real", api.Passwords))
 		r.Get("/{id}", api.GetDiscussion)
 		r.Get("/", api.GetAllDiscussion)
 		r.Post("/", api.CreateDiscussion)
 		r.Delete("/{id}", api.DeleteDiscussion)
-	})
 
-	r.Get("/discussions/messages/{id}", api.GetMessage)
-	r.Get("/discussions/{id}/messages", api.GetAllMessage)
-	// r.Post("/discussions/{id}/messages", api.CreateMessage)
-	r.Delete("/discussions/messages/{id}", api.DeleteMessage)
+		r.Get("/messages/{id}", api.GetMessage)
+		r.Get("/{id}/messages", api.GetAllMessage)
+		r.Post("/{id}/messages", api.CreateMessage)
+		r.Delete("/messages/{id}", api.DeleteMessage)
+	})
 
 	http.ListenAndServe(":8080", r)
 }
