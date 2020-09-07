@@ -1,4 +1,13 @@
-package forum
+package api
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/go-chi/chi"
+	"net/http"
+	"strconv"
+	"time"
+)
 
 type Message struct {
 	id   int
@@ -24,7 +33,7 @@ func requestSayMessage(w http.ResponseWriter, r *http.Request) {
 	indice, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(2)
+		return
 	}
 	if (indice - 1) < len(messages) {
 		e, err := json.MarshalIndent(messages[indice-1].user.mail, "", "  ")
@@ -54,7 +63,7 @@ func deleteMessage(w http.ResponseWriter, r *http.Request) {
 	indice, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(2)
+		return
 	}
 	messages = append(messages[:(indice-1)], messages[indice:]...)
 	messageCount--

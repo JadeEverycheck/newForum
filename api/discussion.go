@@ -1,4 +1,12 @@
-package forum
+package api
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/go-chi/chi"
+	"net/http"
+	"strconv"
+)
 
 type Discussion struct {
 	id    int
@@ -24,7 +32,7 @@ func requestSayDiscussion(w http.ResponseWriter, r *http.Request) {
 	indice, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(2)
+		return
 	}
 	if (indice - 1) < len(discussions) {
 		fmt.Println(discussions[indice-1].mess)

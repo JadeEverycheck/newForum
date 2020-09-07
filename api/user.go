@@ -1,11 +1,20 @@
-package forum
+package api
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"github.com/go-chi/chi"
+	"net/http"
+	"strconv"
+)
 
 type User struct {
 	id   int
 	mail string
 }
 
-func requestSayAll(w http.ResponseWriter, r *http.Request) {
+func GetAllUser(w http.ResponseWriter, r *http.Request) {
 	for user := range users {
 		e, err := json.MarshalIndent(users[user].mail, "", "  ")
 		if err != nil {
@@ -18,12 +27,12 @@ func requestSayAll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func requestSay(w http.ResponseWriter, r *http.Request) {
+func GetUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	indice, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(2)
+		return
 	}
 	if (indice - 1) < len(users) {
 		e, err := json.MarshalIndent(users[indice-1].mail, "", "  ")
@@ -40,7 +49,7 @@ func requestSay(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Cet utilisateur n'existe pas"))
 }
 
-func createUser(w http.ResponseWriter, r *http.Request) {
+func CreateUser(w http.ResponseWriter, r *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	userCount++
@@ -48,12 +57,12 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func updateUser(w http.ResponseWriter, r *http.Request) {
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	indice, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(2)
+		return
 	}
 	if (indice - 1) >= len(users) {
 		w.WriteHeader(http.StatusNotFound)
@@ -74,12 +83,12 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func deleteUser(w http.ResponseWriter, r *http.Request) {
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	indice, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(2)
+		return
 	}
 	users = append(users[:(indice-1)], users[indice:]...)
 	userCount--
