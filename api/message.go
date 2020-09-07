@@ -62,22 +62,24 @@ func GetAllMessage(w http.ResponseWriter, r *http.Request) {
 	response.NotFound(w)
 }
 
-// func GetMessage(w http.ResponseWriter, r *http.Request) {
-// 	id := chi.URLParam(r, "id")
-// 	indice, err := strconv.Atoi(id)
-// 	if err != nil {
-// 		response.BadRequest(w, err.Error())
-// 		return
-// 	}
-// 	index := findDiscussion()
-// 	for _, mess := range discussions.Mess {
-// 		if mess.Id == indice {
-// 			response.Ok(w, mess)
-// 			return
-// 		}
-// 	}
+func GetMessage(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	indice, err := strconv.Atoi(id)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+	for _, disc := range discussions {
+		for _, mess := range disc.Mess {
+			if mess.Id == indice {
+				response.Ok(w, mess)
+				return
+			}
+		}
+	}
+	response.NotFound(w)
+}
 
-// 	response.NotFound(w)
 // 	// id := chi.URLParam(r, "id")
 // 	// indice, err := strconv.Atoi(id)
 // 	// if err != nil {

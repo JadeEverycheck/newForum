@@ -29,7 +29,7 @@ func main() {
 		r.Delete("/{id}", api.DeleteDiscussion)
 	})
 
-	// r.Get("/discussions/messages/{id}", api.GetMessage)
+	r.Get("/discussions/messages/{id}", api.GetMessage)
 	r.Get("/discussions/{id}/messages", api.GetAllMessage)
 	// r.Post("/discussions/{id}/messages", api.CreateMessage)
 	// r.Delete("/discussions/messages/{id}", api.DeleteMessage)
