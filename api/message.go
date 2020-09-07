@@ -36,7 +36,7 @@ func requestSayMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if (indice - 1) < len(messages) {
-		e, err := json.MarshalIndent(messages[indice-1].user.mail, "", "  ")
+		e, err := json.MarshalIndent(messages[indice-1].user.Mail, "", "  ")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Println(err)
