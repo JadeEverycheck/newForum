@@ -21,13 +21,6 @@ func main() {
 		r.Put("/{id}", api.UpdateUser)
 		r.Delete("/{id}", api.DeleteUser)
 	})
-	// r.Route("/messages", func(r chi.Router) {
-	// 	r.Get("/{id}", api.getMessage)
-	// 	r.Get("/", api.getAllMessage)
-	// 	//r.Post("/", createMessage)
-	// 	//r.Put("/{id}", updateMessage)
-	// 	r.Delete("/{id}", api.deleteMessage)
-	// })
 
 	r.Route("/discussions", func(r chi.Router) {
 		r.Get("/{id}", api.GetDiscussion)
@@ -35,6 +28,11 @@ func main() {
 		r.Post("/", api.CreateDiscussion)
 		r.Delete("/{id}", api.DeleteDiscussion)
 	})
+
+	// r.Get("/discussions/messages/{id}", api.GetMessage)
+	r.Get("/discussions/{id}/messages", api.GetAllMessage)
+	// r.Post("/discussions/{id}/messages", api.CreateMessage)
+	// r.Delete("/discussions/messages/{id}", api.DeleteMessage)
 
 	http.ListenAndServe(":8080", r)
 }

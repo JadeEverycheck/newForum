@@ -1,8 +1,8 @@
 package api
 
 import (
-	"encoding/json"
-	"fmt"
+	//"encoding/json"
+	"forum/response"
 	"github.com/go-chi/chi"
 	"net/http"
 	"strconv"
@@ -10,62 +10,111 @@ import (
 )
 
 type Message struct {
-	id   int
-	user User
-	date time.Time
+	Id      int       `json:"id"`
+	UserId  int       `json:"user_id"`
+	Date    time.Time `json:"date"`
+	Content string    `json:"content"`
 }
 
-func requestSayAllMessage(w http.ResponseWriter, r *http.Request) {
-	for message := range messages {
-		e, err := json.MarshalIndent(messages[message].id, "", "  ")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Println(err)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, string(e))
-	}
-}
+var messageCount = 0
 
-func requestSayMessage(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	indice, err := strconv.Atoi(id)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	if (indice - 1) < len(messages) {
-		e, err := json.MarshalIndent(messages[indice-1].user.Mail, "", "  ")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Println(err)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, string(e))
-		return
-	}
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("Ce message n'existe pas"))
-}
-
-/*func createMessage(w http.ResponseWriter, r *http.Request) {
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(r.Body)
+func appendMessage(uId int, content string, disc *Discussion) Message {
 	messageCount++
-	appendMessage(buf.String())
-	w.WriteHeader(http.StatusCreated)
-}*/
+	message := Message{
+		Id:      messageCount,
+		Date:    time.Now(),
+		UserId:  uId,
+		Content: content,
+	}
+	disc.Mess = append(disc.Mess, message)
+	return message
+}
 
-func deleteMessage(w http.ResponseWriter, r *http.Request) {
+// func removeMessage(m Message) {
+// 	index := -1
+// 	for i, mess := range discussions {
+// 		if mess.Id == m.Id {
+// 			index = i
+// 			break
+// 		}
+// 	}
+// 	if index == -1 {
+// 		return
+// 	}
+// 	copy(discussions.Mess[index:], discussions.Mess[index+1:])
+// 	discussions.Mess = discussions.Mess[:len(discussions.Mess)-1]
+// }
+
+func GetAllMessage(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	indice, err := strconv.Atoi(id)
 	if err != nil {
-		fmt.Println(err)
+		response.BadRequest(w, err.Error())
 		return
 	}
-	messages = append(messages[:(indice-1)], messages[indice:]...)
-	messageCount--
-	w.WriteHeader(http.StatusNoContent)
+
+	for _, disc := range discussions {
+		if disc.Id == indice {
+			response.Ok(w, disc.Mess)
+			return
+		}
+	}
+	response.NotFound(w)
 }
+
+// func GetMessage(w http.ResponseWriter, r *http.Request) {
+// 	id := chi.URLParam(r, "id")
+// 	indice, err := strconv.Atoi(id)
+// 	if err != nil {
+// 		response.BadRequest(w, err.Error())
+// 		return
+// 	}
+// 	index := findDiscussion()
+// 	for _, mess := range discussions.Mess {
+// 		if mess.Id == indice {
+// 			response.Ok(w, mess)
+// 			return
+// 		}
+// 	}
+
+// 	response.NotFound(w)
+// 	// id := chi.URLParam(r, "id")
+// 	// indice, err := strconv.Atoi(id)
+// 	// if err != nil {
+// 	// 	fmt.Println(err)
+// 	// 	return
+// 	// }
+// 	// if (indice - 1) < len(messages) {
+// 	// 	e, err := json.MarshalIndent(messages[indice-1].user.Mail, "", "  ")
+// 	// 	if err != nil {
+// 	// 		w.WriteHeader(http.StatusInternalServerError)
+// 	// 		fmt.Println(err)
+// 	// 		return
+// 	// 	}
+// 	// 	w.WriteHeader(http.StatusOK)
+// 	// 	fmt.Fprintln(w, string(e))
+// 	// 	return
+// 	// }
+// 	// w.WriteHeader(http.StatusNotFound)
+// 	// w.Write([]byte("Ce message n'existe pas"))
+// }
+
+// /*func createMessage(w http.ResponseWriter, r *http.Request) {
+// 	buf := new(bytes.Buffer)
+// 	buf.ReadFrom(r.Body)
+// 	messageCount++
+// 	appendMessage(buf.String())
+// 	w.WriteHeader(http.StatusCreated)
+// }*/
+
+// func deleteMessage(w http.ResponseWriter, r *http.Request) {
+// 	id := chi.URLParam(r, "id")
+// 	indice, err := strconv.Atoi(id)
+// 	if err != nil {
+// 		response.Deleted(w)
+// 		return
+// 	}
+// 	removeMessage(Message{Id: indice})
+// 	response.Deleted(w)
+
+// }
