@@ -15,6 +15,35 @@ type Discussion struct {
 	Mess    []Message `json:"message,omitempty"`
 }
 
+var discussions = make([]Discussion, 0, 20)
+var discussionCount = 0
+
+func appendDiscussion(sujet string) Discussion {
+	discussionCount++
+	discussion := Discussion{
+		Id:      discussionCount,
+		Subject: sujet,
+		Mess:    []Message{},
+	}
+	discussions = append(discussions, discussion)
+	return discussion
+}
+
+func removeDiscussion(d Discussion) {
+	index := -1
+	for i, disc := range discussions {
+		if disc.Id == d.Id {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		return
+	}
+	copy(discussions[index:], discussions[index+1:])
+	discussions = discussions[:len(discussions)-1]
+}
+
 func GetAllDiscussion(w http.ResponseWriter, r *http.Request) {
 	response.Ok(w, discussions)
 }

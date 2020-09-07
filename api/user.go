@@ -14,6 +14,31 @@ type User struct {
 	Mail string `json:"mail"`
 }
 
+var users = make([]User, 0, 20)
+var userCount = 0
+
+func appendUser(email string) User {
+	userCount++
+	user := User{userCount, email}
+	users = append(users, user)
+	return user
+}
+
+func removeUser(u User) {
+	index := -1
+	for i, user := range users {
+		if user.Id == u.Id {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		return
+	}
+	copy(users[index:], users[index+1:])
+	users = users[:len(users)-1]
+}
+
 func GetAllUser(w http.ResponseWriter, r *http.Request) {
 	response.Ok(w, users)
 }
