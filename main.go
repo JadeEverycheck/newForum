@@ -7,46 +7,58 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"net/http"
-	//"reflect"
 	"os"
 	"strconv"
 	"time"
 )
 
-type User struct {
-	id   int
-	mail string
-}
 
-type Message struct {
-	id   int
-	user User
-	date time.Time
-}
 
-type Discussion struct {
-	id    int
-	sujet string
-	mess  []Message
-}
 
 var users = make([]User, 0, 20)
 var userCount = 0
+var messages = make([]Message, 0, 20)
+var messageCount = 0
+var messageInit []Message
+var discussions = make([]Discussion, 0, 20)
+var discussionCount = 0
 
 func appendUser(email string) {
 	userCount++
 	users = append(users, User{userCount, email})
 }
 
+func appendMessage(id int, mail string) {
+	messageCount++
+	u := User{id, mail}
+	messages = append(messages, Message{messageCount, u, time.Now()})
+}
+
+func appendDiscussion(sujet string) {
+	discussionCount++
+	discussions = append(discussions, Discussion{discussionCount, sujet, messageInit})
+}
+
+func appendMessToDisc(disc Discussion, mess Message) {
+	disc.mess = append(disc.mess, Message{)
+}
+
 func initData() {
 	appendUser("test1@example.com")
 	appendUser("test2@example.com")
 	appendUser("test3@example.com")
+	appendMessage(users[0].id, users[0].mail)
+	appendMessage(users[0].id, users[0].mail)
+	appendMessage(users[1].id, users[1].mail)
+	appendDiscussion("Present")
+	appendDiscussion("Futur")
+	disc1 := Discussion{discussions[0].id, discussions[0].sujet, discussions[0].mess}
+	m1 := Message{messages[0].id, messages[0].user, messages[0].date}
+	appendMessToDisc(disc1, m1)
 }
 
 func main() {
 	initData()
-	fmt.Println(users[0])
 	fmt.Println("Début du forum")
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -55,63 +67,27 @@ func main() {
 		r.Get("/{id}", requestSay)
 		r.Get("/", requestSayAll)
 		r.Post("/", createUser)
-		r.Put("/{id}", updateData)
+		r.Put("/{id}", updateUser)
 		r.Delete("/{id}", deleteUser)
+	})
+	r.Route("/messages", func(r chi.Router) {
+		r.Get("/{id}", requestSayMessage)
+		r.Get("/", requestSayAllMessage)
+		//r.Post("/", createMessage)
+		//r.Put("/{id}", updateMessage)
+		r.Delete("/{id}", deleteMessage)
+
+	})
+	r.Route("/discussions", func(r chi.Router) {
+		r.Get("/{id}", requestSayDiscussion)
+		r.Get("/", requestSayAllDiscussion)
+		//r.Post("/", createMessage)
+		//r.Put("/{id}", updateMessage)
+		//r.Delete("/{id}", deleteMessage)
+
 	})
 	http.ListenAndServe(":8080", r)
 }
-func requestSayAll(w http.ResponseWriter, r *http.Request) {
-	for user := range users {
-		e, err := json.MarshalIndent(users[user].mail, "", "  ")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Println(err)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, string(e))
-	}
-}
 
-func requestSay(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	indice, err := strconv.Atoi(id)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(2)
-	}
-	if (indice - 1) < len(users) {
-		//if users[indice-1].mail != "" {
-		e, err := json.MarshalIndent(users[indice-1].mail, "", "  ")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Println(err)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, string(e))
-		return
-	}
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("Cet utilisateur n'existe pas"))
-}
 
-func createUser(w http.ResponseWriter, r *http.Request) {
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(r.Body)
-	userCount++
-	appendUser(buf.String())
-	w.WriteHeader(http.StatusCreated)
-}
 
-func deleteUser(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	indice, err := strconv.Atoi(id)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(2)
-	}
-	users = append(users[:(indice-1)], users[indice:]...)
-	userCount--
-	w.WriteHeader(http.StatusNoContent)
-}
