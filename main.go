@@ -8,7 +8,28 @@ import (
 	"github.com/go-chi/cors"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 )
+
+func FileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit any URL parameters.")
+	}
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
+		rctx := chi.RouteContext(r.Context())
+		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		fs.ServeHTTP(w, r)
+	})
+}
 
 func main() {
 	port := os.Getenv("PORT")
@@ -31,6 +52,11 @@ func main() {
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
+
+	workDir, _ := os.Getwd()
+	filesDir := http.Dir(filepath.Join(workDir, "static"))
+	FileServer(r, "/static", filesDir)
+
 	r.Route("/users", func(r chi.Router) {
 		r.Get("/{id}", api.GetUser)
 		r.Get("/", api.GetAllUser)
