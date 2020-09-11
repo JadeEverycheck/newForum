@@ -7,9 +7,15 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"net/http"
+	"os"
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8080"
+	}
+
 	api.InitData()
 	fmt.Println("Début du forum")
 	r := chi.NewRouter()
@@ -46,5 +52,5 @@ func main() {
 		r.Delete("/messages/{id}", api.DeleteMessage)
 	})
 
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":"+port, r)
 }
