@@ -41,7 +41,7 @@ function createListItem(discussion)
                         tag: 'a', 
                         properies: {
                             className: "btn btn-sm btn-primary",
-                            href: "/html/discussion/show.html?id="+discussion.id
+                            href: "./html/discussion/show.html?id="+discussion.id
                         }, 
                         children: [
                             {   
