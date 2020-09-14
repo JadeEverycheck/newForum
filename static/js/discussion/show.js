@@ -5,6 +5,7 @@ mailUser.appendChild(document.createTextNode(email))
 
 const requestStatusDone = 4
 
+
 function signOut() {
     localStorage.clear()
     window.location.replace("../../index.html")
@@ -34,16 +35,18 @@ function setUpAddMessage(id){
     let addButton = document.getElementById('addMessage-form')
     addButton.onsubmit = ($event) => {
         let request = new XMLHttpRequest()
-        request.open("POST", host + "/discussions/" + id + "/messages", true)
+        request.open("POST", host + "/discussions/" + id + "/messages", false)
         request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
         request.onload = () => {
             if (request.status == 201) {
-                window.location.reload()
+                window.location.href = "./show.html?id="+id
             } else {
                 alert("Your message has not been sent")
             }
         }
-        request.send(JSON.stringify({ content: $event.target.elements['content'].value }))        
+        request.send(JSON.stringify({ content: $event.target.elements['content'].value }))
+
+        return false
     }
 }
 
@@ -89,11 +92,9 @@ function createMessage(msg, mail)
 }
 
 function requestAllMessages(id){
-
     let getDiscussionRequest = new XMLHttpRequest()
     getDiscussionRequest.open('GET', host + '/discussions/' + id, true)
     getDiscussionRequest.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
-
     getDiscussionRequest.onload = () => {
         if (getDiscussionRequest.status != 200) {
             return
