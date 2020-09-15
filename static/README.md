@@ -1,4 +1,4 @@
-# Frontend for forum app
+# New frontend for forum app
 
 
 to launch the front  : 
