@@ -1,141 +1,129 @@
-const email = localStorage.getItem("email")
-const password = localStorage.getItem("password")
-const mailUser = document.getElementById('user')
-mailUser.appendChild(document.createTextNode(email))
+const email = localStorage.getItem('mail')
+const password = localStorage.getItem('password')
+let queryString = window.location.search
+let urlParams = new URLSearchParams(queryString)
+let id = urlParams.get('id')
 
-const requestStatusDone = 4
 
-
-function signOut() {
-    localStorage.clear()
-    window.location.replace("../../index.html")
+function addMessage() {
+	let addMessageForm = document.getElementById('addMessage-form')
+	addMessageForm.onsubmit = (e) => {
+		let addMessageRequest = new XMLHttpRequest()
+		addMessageRequest.open('POST', 'http://localhost:8080/discussions/' + id + '/messages', false)
+		addMessageRequest.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
+		addMessageRequest.onload = () => {
+			if (addMessageRequest.status == 201) {
+				window.location.replace('./show.html?id=' + id)
+			} else {
+				alert('Your message has not been added')
+			}
+		}
+		addMessageRequest.send(JSON.stringify({content : e.target.elements['content'].value}))
+		return false
+	}
 }
 
-
-function deleteMessage(idMess){
-    if (!confirm('Are you sure?')) {
-        return
-    }
-
-    let request = new XMLHttpRequest()
-    request.open("DELETE", host + "/discussions/messages/" + idMess, true)
-    request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
-    request.onload = () => {
-        if (request.status == 204) {
-            window.location.reload()
-        } else {
-            alert("Discussion has not been deleted")
-        }
-    }
-    request.send()   
+window.onload = function() {
+	let user = document.getElementById('user')
+	user.appendChild(document.createTextNode(email))
+	addMessage()
+	let request = new XMLHttpRequest()
+	request.open('GET', 'http://localhost:8080/discussions/' + id, true)
+	request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
+	request.onload = function() {
+		if (request.status !== 200) {
+			alert('test')
+			return
+		}
+	giveTitle(request.response)
+	// if (JSON.parse(request.response).message == undefined) {
+	// 	return
+	// }
+	loadMessage(request.response)
+	}
+	request.send(null)
+	return false
 }
 
-
-function setUpAddMessage(id){
-    let addButton = document.getElementById('addMessage-form')
-    addButton.onsubmit = ($event) => {
-        let request = new XMLHttpRequest()
-        request.open("POST", host + "/discussions/" + id + "/messages", false)
-        request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
-        request.onload = () => {
-            if (request.status == 201) {
-                window.location.href = "./show.html?id="+id
-            } else {
-                alert("Your message has not been sent")
-            }
-        }
-        request.send(JSON.stringify({ content: $event.target.elements['content'].value }))
-
-        return false
-    }
+function giveTitle(data) {
+	let title = document.getElementById('title')
+	let subject = JSON.parse(data)
+	title.innerText = subject.subject
+	return
 }
 
-function createMessage(msg, mail)
-{
-    return createElement({
-        tag:"tr",
-        children:[
-            {
-                tag:"td",
-                children :[mail]            
-            },
-            {
-                tag:"td",
-                children :[msg.content]            
-            },
-            {
-                tag:"td",
-                children :[`on ${msg.date.substring(0, 10)} at ${msg.date.substring(11, 16)}`]            
-            },
-            {
-                tag:"td",
-                children :[
-                    {
-                        tag: 'button',
-                        properies: {
-                            className: "btn btn-sm btn-danger ",
-                            onclick: ()=>{deleteMessage(msg.id)},
-                        },
-                        children: [
-                            {
-                                tag: 'i',
-                                properies: {
-                                    className: "fas fa-trash-alt",
-                                },
-                            },
-                        ]
-                    },
-                ]            
-            },
-        ]
-    })
+function loadMessage(data) {
+	if (JSON.parse(data).message == undefined) {
+		return
+	}
+	console.log('messages = ', JSON.parse(data).message)
+	let discussion = document.getElementById("messages")
+	for (const message of JSON.parse(data).message.reverse()) {
+		console.log('message = ', message)
+		getUserMail(message, discussion)
+	}
 }
 
-function requestAllMessages(id){
-    let getDiscussionRequest = new XMLHttpRequest()
-    getDiscussionRequest.open('GET', host + '/discussions/' + id, true)
-    getDiscussionRequest.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
-    getDiscussionRequest.onload = () => {
-        if (getDiscussionRequest.status != 200) {
-            return
-        }
-        onDisscussionLoaded(JSON.parse(getDiscussionRequest.response))
-    }
-
-    getDiscussionRequest.send()
+function getUserMail(data, discussion) {
+	let userId = data.user_id
+	let getUser = new XMLHttpRequest()
+	getUser.open('GET', 'http://localhost:8080/users/' + userId, true)
+	getUser.onload = function() {
+		if (getUser.status !== 200) {
+			return
+		}
+		discussion.appendChild(createMessage(data, JSON.parse(getUser.response).mail))
+	}
+	getUser.send()
 }
 
-function onDisscussionLoaded(data){
-    const discussion = document.getElementById('disc')
-    const title = document.getElementById('title')
-    title.innerText = data.subject
-    if (data.message === undefined){
-        return
-    }
-    for (const msg of data.message.reverse()) {
-        loadUserNameAndCreateMessageIn(msg,discussion)
-    }
+function createMessage(data, mail) {
+	let listMessages = createElement({
+		tag: "tr",
+		children: [
+			{
+				tag: "td",
+				children: [mail],
+			},
+			{
+				tag: "td",
+				children: [data.content],
+			},
+			{
+				tag: "td",
+				children: [`on ${data.date.substring(0, 10)} at ${data.date.substring(11, 16)}`],          
+			},
+			{
+				tag: "td",
+				children: [
+					{
+						tag: "button",
+						properies: { className: "btn btn-danger btn-sm ml-2", onclick: () => {deleteMessage(data)}},
+						children : [
+							{
+								tag: "i",
+								properies : {className :"fas fa-trash-alt"},
+							},
+						]
+					}
+				]
+			}
+		]
+	})
+	return listMessages
 }
 
-function loadUserNameAndCreateMessageIn(msg,discussion){
-        let requestUser = new XMLHttpRequest()
-        requestUser.open('GET', host + '/users/'+ msg.user_id, true)
-        requestUser.onload = () => {
-            if (requestUser.status != 200) {
-                return
-            }
-            discussion.appendChild(createMessage(msg, JSON.parse(requestUser.response).mail))
-        }    
-        requestUser.send()
+function deleteMessage(data) {
+	if (confirm('Are you sure ? ')) {
+		let deleteRequest = new XMLHttpRequest()
+		deleteRequest.open('DELETE', 'http://localhost:8080/discussions/messages/' + data.id, true)
+		deleteRequest.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
+		deleteRequest.onload = () => {
+			if (deleteRequest.status != 204) {
+				return
+			}
+			window.location.reload()
+		}
+		deleteRequest.send()
+	}
 }
-
-
-window.onload = function(){
-    const queryString = window.location.search
-    const urlParams = new URLSearchParams(queryString)
-    const id = urlParams.get('id')
-
-    setUpAddMessage(id)
-    requestAllMessages(id)
-}
-

@@ -1,27 +1,28 @@
-const newDiscForm = document.getElementById('newDisc-form')
-let email = localStorage.getItem("email")
-let password = localStorage.getItem("password")
-const mail = document.getElementById('user')
-mail.appendChild(document.createTextNode(email))
+let discForm = document.getElementById('newDisc-form')
+const email = localStorage.getItem('mail')
+const password = localStorage.getItem('password')
 
 function signOut() {
-    localStorage.clear()
-    window.location.replace("../../index.html")
+	localStorage.clear()
+	window.location.replace('../../index.html')
 }
 
-newDiscForm.onsubmit = function(e) {
-    let request = new XMLHttpRequest()
-    request.open("POST", host + "/discussions/", true)
-    request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
-    request.send(JSON.stringify({ subject: e.target.elements['subject'].value }))
-    request.onload = () => {
-        console.log(request)
-        if (request.status == 201) {
-            window.location.replace("../discussion/list.html")
-        } else {
-            alert("Creation of a new discussion has failed")
-        }
-    }
+discForm.onsubmit = function(e) {
+	let request = new XMLHttpRequest()
+	request.open('POST', 'http://localhost:8080/discussions/', true)
+	request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
+	request.onload = () => {
+		if (request.status == 201) {
+			window.location.replace('../../html/discussion/list.html')
+		} else {
+			alert('Discussion has not been created')
+		}
+	}
+	request.send(JSON.stringify({subject : e.target.elements['subject'].value}))
+	return false
+}
 
-    return false
+window.onload = () => {
+	let user = document.getElementById('user')
+	user.appendChild(document.createTextNode(email))
 }

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html>
 	<head>
-		<meta charset='utf-8'/>
+		<meta charset="utf-8">
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
 		<title>New discussion</title>
@@ -11,41 +10,39 @@
 			<div class="row">
 				<div class="col-12">
 					<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  						<a class="navbar-brand disabled" disabled>Forum de Jade</a>
-  						<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    						<span class="navbar-toggler-icon"></span>
-  						</button>
-  						<div class="collapse navbar-collapse" id="navbarNav">
-    						<ul class="navbar-nav mr-auto">
-      							<li class="nav-item active">
-        							<a class="nav-link" href="list.html">List of discussions<span class="sr-only"></span></a>
-      							</li>
-    						</ul>
-    						<span class="navbar-text" id="user">User :</span>
-    						<span class="ml-4">
-    							<button onclick="signOut()" class="btn btn-sm btn-secondary">
-    								<i class="fas fa-sign-out-alt"></i>
-    							</button>
+  						<a class="navbar-brand">Forum de Jade</a>
+			  			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			    			<span class="navbar-toggler-icon"></span>
+			  			</button>
+			  			<div class="collapse navbar-collapse" id="navbarNav">
+			    			<ul class="navbar-nav">
+			      				<li class="nav-item active">
+			        				<a class="nav-link" href="./list.html">List of discussions <span class="sr-only"></span></a>
+			      				</li>
+			    			</ul>
+			    			<span class="navbar-text" id="user">User : </span>
+			    			<span class="ml-4">
+			    				<button onclick="signOut()" class="btn btn-secondary btn-sm">
+			    					<i class="fas fa-sign-out-alt"></i>
+			    				</button>
     						</span>
-  						</div>
+			  			</div>
 					</nav>
 				</div>
 			</div>
+			<h1 class="ml-4">Create a new discussion</h1>
 			<hr />
-			<h1>Create a new discussion</h1>
-			<form id="newDisc-form" class="mt-8" >
-				<div class="form-group">
-					<label for="subject">Add a subject</label>
-					<textarea class="form-control" id="subject" name="subject" rows=1 cols=40 required></textarea>
-				</div>
-				<div class="row">
-					<div class="col-12 text-right">
-						<input type="submit" value="Add" class="btn btn-success" >
-					</div>
-				</div>
-			</form>
-		</div>
-		<script src="../../js/discussion/new.js" type="text/javascript"></script>
-		<script src="../../js/host.js" type="text/javascript"></script>
+			<form id="newDisc-form">
+				<div class="form-group mx-4">
+    				<label for="subject">Add a subject</label>
+    				<textarea class="form-control" id="subject" rows="1"></textarea>
+  				</div>
+  				<button type="submit" class="btn btn-primary ml-4">
+  					<i class="fas fa-plus mr-2"></i>
+  					Add
+  				</button>
+  			</form>
+  		</div>
+  		<script src="../../js/discussion/new.js" type="text/javascript"></script>
 	</body>
 </html>
