@@ -53,7 +53,6 @@ function createListItem(discussion) {
 							properies: {className: "fas fa-trash-alt justify-content-md-center"},
 						}
 						]
-
 					}
 				]
 			}

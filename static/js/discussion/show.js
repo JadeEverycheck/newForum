@@ -36,14 +36,10 @@ window.onload = function() {
 	request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
 	request.onload = function() {
 		if (request.status !== 200) {
-			alert('test')
 			return
 		}
-	giveTitle(request.response)
-	// if (JSON.parse(request.response).message == undefined) {
-	// 	return
-	// }
-	loadMessage(request.response)
+		giveTitle(request.response)
+		loadMessage(request.response)
 	}
 	request.send(null)
 	return false
@@ -100,7 +96,8 @@ function createMessage(data, mail) {
 				children: [
 					{
 						tag: "button",
-						properies: { className: "btn btn-danger btn-sm ml-2", onclick: () => {deleteMessage(data)}},
+						properies: { className: "btn btn-danger btn-sm ml-2", 
+									onclick: () => {deleteMessage(data)}},
 						children : [
 							{
 								tag: "i",
