@@ -13,7 +13,7 @@ function addMessage() {
 	let addMessageForm = document.getElementById('addMessage-form')
 	addMessageForm.onsubmit = (e) => {
 		let addMessageRequest = new XMLHttpRequest()
-		addMessageRequest.open('POST', 'http://localhost:8080/discussions/' + id + '/messages', false)
+		addMessageRequest.open('POST', host + '/discussions/' + id + '/messages', false)
 		addMessageRequest.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
 		addMessageRequest.onload = () => {
 			if (addMessageRequest.status == 201) {
@@ -32,7 +32,7 @@ window.onload = function() {
 	user.appendChild(document.createTextNode(email))
 	addMessage()
 	let request = new XMLHttpRequest()
-	request.open('GET', 'http://localhost:8080/discussions/' + id, true)
+	request.open('GET', host + '/discussions/' + id, true)
 	request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
 	request.onload = function() {
 		if (request.status !== 200) {
@@ -65,7 +65,7 @@ function loadMessage(data) {
 function getUserMail(data, discussion) {
 	let userId = data.UserId
 	let getUser = new XMLHttpRequest()
-	getUser.open('GET', 'http://localhost:8080/users/' + userId, true)
+	getUser.open('GET', host + '/users/' + userId, true)
 	getUser.onload = function() {
 		if (getUser.status !== 200) {
 			return
@@ -115,7 +115,7 @@ function createMessage(data, mail) {
 function deleteMessage(data) {
 	if (confirm('Are you sure ? ')) {
 		let deleteRequest = new XMLHttpRequest()
-		deleteRequest.open('DELETE', 'http://localhost:8080/discussions/messages/' + data.Id, true)
+		deleteRequest.open('DELETE', host + '/discussions/messages/' + data.Id, true)
 		deleteRequest.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
 		deleteRequest.onload = () => {
 			if (deleteRequest.status != 204) {
