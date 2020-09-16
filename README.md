@@ -2,7 +2,7 @@
 To launch the project, clone then execute the following command : 
 
 ```bash
-git clone https://github.com/JadeEverycheck/apiForum.git
+git clone https://github.com/JadeEverycheck/newForum.git
 
 cd apiForum
 
