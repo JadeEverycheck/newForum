@@ -2,31 +2,31 @@ package api
 
 import (
 	"encoding/json"
-	"forum/response"
 	"github.com/go-chi/chi"
 	"io/ioutil"
 	"net/http"
+	"new-forum/apiForum/response"
 	"strconv"
 )
 
 type Discussion struct {
-	Id      int       `json:"id"`
-	Subject string    `json:"subject"`
-	Mess    []Message `json:"message,omitempty"`
+	Id      int       `json: "id"`
+	Subject string    `json: "subject"`
+	Mess    []Message `json: "messages, omitempty"`
 }
 
 var discussions = make([]Discussion, 0, 20)
 var discussionCount = 0
 
-func appendDiscussion(sujet string) Discussion {
+func appendDiscussion(subject string) Discussion {
 	discussionCount++
-	discussion := Discussion{
+	var d = Discussion{
 		Id:      discussionCount,
-		Subject: sujet,
+		Subject: subject,
 		Mess:    []Message{},
 	}
-	discussions = append(discussions, discussion)
-	return discussion
+	discussions = append(discussions, d)
+	return d
 }
 
 func removeDiscussion(d Discussion) {
@@ -42,27 +42,39 @@ func removeDiscussion(d Discussion) {
 	}
 	copy(discussions[index:], discussions[index+1:])
 	discussions = discussions[:len(discussions)-1]
+	return
 }
 
-func GetAllDiscussion(w http.ResponseWriter, r *http.Request) {
+func GetAllDiscussions(w http.ResponseWriter, r *http.Request) {
 	response.Ok(w, discussions)
+	return
 }
 
 func GetDiscussion(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	indice, err := strconv.Atoi(id)
+	data := chi.URLParam(r, "id")
+	index, err := strconv.Atoi(data)
 	if err != nil {
 		response.BadRequest(w, err.Error())
 		return
 	}
-
 	for _, disc := range discussions {
-		if disc.Id == indice {
+		if disc.Id == index {
 			response.Ok(w, disc)
 			return
 		}
 	}
 	response.NotFound(w)
+}
+
+func DeleteDiscussion(w http.ResponseWriter, r *http.Request) {
+	data := chi.URLParam(r, "id")
+	index, err := strconv.Atoi(data)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+	removeDiscussion(Discussion{Id: index})
+	response.Deleted(w)
 }
 
 func CreateDiscussion(w http.ResponseWriter, r *http.Request) {
@@ -78,17 +90,5 @@ func CreateDiscussion(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, err.Error())
 		return
 	}
-	d = appendDiscussion(d.Subject)
-	response.Created(w, d)
-}
-
-func DeleteDiscussion(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	indice, err := strconv.Atoi(id)
-	if err != nil {
-		response.Deleted(w)
-		return
-	}
-	removeDiscussion(Discussion{Id: indice})
-	response.Deleted(w)
+	response.Created(w, appendDiscussion(d.Subject))
 }

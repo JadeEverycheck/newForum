@@ -1,4 +1,4 @@
-module forum
+module new-forum/apiForum
 
 go 1.14
 

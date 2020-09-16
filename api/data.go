@@ -2,17 +2,17 @@ package api
 
 var Passwords = map[string]string{
 	"test1@example.com": "password1",
-	"test2@example.com": "password2",
-	"test3@example.com": "password3",
+	"test4@example.com": "password4",
 }
 
 func InitData() {
-	for login, password := range Passwords {
-		appendUser(login, password)
+	for key, value := range Passwords {
+		appendUser(key, value)
 	}
-	appendDiscussion("Present")
-	appendDiscussion("Futur")
-	appendMessage(users[0].Id, "jeSuisUnContenuDeMessage", &discussions[0])
-	appendMessage(users[0].Id, "jeSuisUnSecondMessage", &discussions[0])
-	appendMessage(users[1].Id, "jeSuisUnMessageAutrePart", &discussions[1])
+	appendDiscussion("Animals")
+	appendDiscussion("Weather")
+	appendDiscussion("France")
+	appendMessage("Chien", 1, &discussions[0])
+	appendMessage("Chat", 1, &discussions[0])
+	return
 }

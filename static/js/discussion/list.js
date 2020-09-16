@@ -11,7 +11,7 @@ function signOut() {
 function deleteDiscussion(discussion){
 	if (confirm('Are you sure ? ')) {
 		let request = new XMLHttpRequest()
-		request.open('DELETE', 'http://localhost:8080/discussions/' + discussion.id, true)
+		request.open('DELETE', 'http://localhost:8080/discussions/' + discussion.Id, true)
 		request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
 		request.onload = () => {
 			if (request.status == 204) {
@@ -28,13 +28,13 @@ function createListItem(discussion) {
 	let listDic = createElement({
 		tag: "li",
 		properies : {className: "list-group-item d-flex justify-content-between align-items-center mx-4 mt-2 border bg-light"},
-		children: [discussion.subject,
+		children: [discussion.Subject,
 			{
 				tag: "div",
 				children: [
 					{
 						tag: "a",
-						properies: {href:"show.html?id="+discussion.id, className:"btn btn-sm btn-primary"},
+						properies: {href:"show.html?id="+discussion.Id, className:"btn btn-sm btn-primary"},
 						children: [
 						{
 							tag:"i",
@@ -69,7 +69,6 @@ window.onload = function() {
 	request.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
 	request.onload = function() {
 		if (request.status != 200) {
-			alert('test')
 			return
 		}
 		data = JSON.parse(request.response)
@@ -78,5 +77,4 @@ window.onload = function() {
 		}
 	}
 	request.send()
-	console.log(discussions)
 } 

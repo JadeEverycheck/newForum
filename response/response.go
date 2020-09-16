@@ -7,7 +7,7 @@ import (
 )
 
 func Json(w http.ResponseWriter, status int, payload interface{}) {
-	data, err := json.MarshalIndent(payload, "", "  ")
+	data, err := json.MarshalIndent(payload, "", "")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println(err)

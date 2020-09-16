@@ -4,6 +4,10 @@ let queryString = window.location.search
 let urlParams = new URLSearchParams(queryString)
 let id = urlParams.get('id')
 
+function signOut() {
+	localStorage.clear()
+	window.location.replace('../../index.html')
+}
 
 function addMessage() {
 	let addMessageForm = document.getElementById('addMessage-form')
@@ -48,31 +52,29 @@ window.onload = function() {
 function giveTitle(data) {
 	let title = document.getElementById('title')
 	let subject = JSON.parse(data)
-	title.innerText = subject.subject
+	title.innerText = subject.Subject
 	return
 }
 
 function loadMessage(data) {
-	if (JSON.parse(data).message == undefined) {
+	if (JSON.parse(data).Mess == undefined) {
 		return
 	}
-	console.log('messages = ', JSON.parse(data).message)
 	let discussion = document.getElementById("messages")
-	for (const message of JSON.parse(data).message.reverse()) {
-		console.log('message = ', message)
+	for (const message of JSON.parse(data).Mess.reverse()) {
 		getUserMail(message, discussion)
 	}
 }
 
 function getUserMail(data, discussion) {
-	let userId = data.user_id
+	let userId = data.UserId
 	let getUser = new XMLHttpRequest()
 	getUser.open('GET', 'http://localhost:8080/users/' + userId, true)
 	getUser.onload = function() {
 		if (getUser.status !== 200) {
 			return
 		}
-		discussion.appendChild(createMessage(data, JSON.parse(getUser.response).mail))
+		discussion.appendChild(createMessage(data, JSON.parse(getUser.response).Mail))
 	}
 	getUser.send()
 }
@@ -87,11 +89,11 @@ function createMessage(data, mail) {
 			},
 			{
 				tag: "td",
-				children: [data.content],
+				children: [data.Content],
 			},
 			{
 				tag: "td",
-				children: [`on ${data.date.substring(0, 10)} at ${data.date.substring(11, 16)}`],          
+				children: [`on ${data.Date.substring(0, 10)} at ${data.Date.substring(11, 16)}`],          
 			},
 			{
 				tag: "td",
@@ -116,7 +118,7 @@ function createMessage(data, mail) {
 function deleteMessage(data) {
 	if (confirm('Are you sure ? ')) {
 		let deleteRequest = new XMLHttpRequest()
-		deleteRequest.open('DELETE', 'http://localhost:8080/discussions/messages/' + data.id, true)
+		deleteRequest.open('DELETE', 'http://localhost:8080/discussions/messages/' + data.Id, true)
 		deleteRequest.setRequestHeader('Authorization', 'Basic '+btoa(email+":"+password))
 		deleteRequest.onload = () => {
 			if (deleteRequest.status != 204) {

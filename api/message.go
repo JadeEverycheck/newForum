@@ -2,64 +2,64 @@ package api
 
 import (
 	"encoding/json"
-	"forum/response"
 	"github.com/go-chi/chi"
 	"io/ioutil"
 	"net/http"
+	"new-forum/apiForum/response"
 	"strconv"
 	"time"
 )
 
 type Message struct {
-	Id      int       `json:"id"`
-	UserId  int       `json:"user_id"`
-	Date    time.Time `json:"date"`
-	Content string    `json:"content"`
+	Id      int       `json: "id"`
+	Content string    `json: "content"`
+	Date    time.Time `json: "date"`
+	UserId  int       `json: "user id"`
 }
 
 var messageCount = 0
 
-func appendMessage(uId int, content string, disc *Discussion) Message {
+func appendMessage(content string, uId int, disc *Discussion) Message {
 	messageCount++
-	message := Message{
+	var m = Message{
 		Id:      messageCount,
+		Content: content,
 		Date:    time.Now(),
 		UserId:  uId,
-		Content: content,
 	}
-	disc.Mess = append(disc.Mess, message)
-	return message
+	disc.Mess = append(disc.Mess, m)
+	return m
 }
 
 func removeMessage(m Message) {
-	index := -1
-	discIndex := -1
+	indexDisc := -1
+	indexMess := -1
 	for i, disc := range discussions {
 		for j, mess := range disc.Mess {
 			if mess.Id == m.Id {
-				index = j
-				discIndex = i
+				indexDisc = i
+				indexMess = j
 				break
 			}
 		}
 	}
-	if index == -1 || discIndex == -1 {
+	if indexMess == -1 || indexDisc == -1 {
 		return
 	}
-	copy(discussions[discIndex].Mess[index:], discussions[discIndex].Mess[index+1:])
-	discussions[discIndex].Mess = discussions[discIndex].Mess[:len(discussions[discIndex].Mess)-1]
+	copy(discussions[indexDisc].Mess[indexMess:], discussions[indexDisc].Mess[indexMess+1:])
+	discussions[indexDisc].Mess = discussions[indexDisc].Mess[:len(discussions[indexDisc].Mess)-1]
+	return
 }
 
-func GetAllMessage(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	indice, err := strconv.Atoi(id)
+func GetAllMessages(w http.ResponseWriter, r *http.Request) {
+	data := chi.URLParam(r, "id")
+	index, err := strconv.Atoi(data)
 	if err != nil {
 		response.BadRequest(w, err.Error())
 		return
 	}
-
 	for _, disc := range discussions {
-		if disc.Id == indice {
+		if disc.Id == index {
 			response.Ok(w, disc.Mess)
 			return
 		}
@@ -68,15 +68,15 @@ func GetAllMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMessage(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	indice, err := strconv.Atoi(id)
+	data := chi.URLParam(r, "id")
+	index, err := strconv.Atoi(data)
 	if err != nil {
 		response.BadRequest(w, err.Error())
 		return
 	}
 	for _, disc := range discussions {
 		for _, mess := range disc.Mess {
-			if mess.Id == indice {
+			if mess.Id == index {
 				response.Ok(w, mess)
 				return
 			}
@@ -85,16 +85,27 @@ func GetMessage(w http.ResponseWriter, r *http.Request) {
 	response.NotFound(w)
 }
 
+func DeleteMessage(w http.ResponseWriter, r *http.Request) {
+	data := chi.URLParam(r, "id")
+	index, err := strconv.Atoi(data)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+	removeMessage(Message{Id: index})
+	response.Deleted(w)
+}
+
 func CreateMessage(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	indice, err := strconv.Atoi(id)
+	data := chi.URLParam(r, "id")
+	index, err := strconv.Atoi(data)
 	if err != nil {
 		response.BadRequest(w, err.Error())
 		return
 	}
 	d := &Discussion{}
 	for i, disc := range discussions {
-		if disc.Id == indice {
+		if disc.Id == index {
 			d = &discussions[i]
 			break
 		}
@@ -102,7 +113,6 @@ func CreateMessage(w http.ResponseWriter, r *http.Request) {
 	if d.Id == 0 {
 		response.NotFound(w)
 	}
-
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		response.ServerError(w, err.Error())
@@ -122,18 +132,6 @@ func CreateMessage(w http.ResponseWriter, r *http.Request) {
 			user = u
 		}
 	}
-
-	m = appendMessage(user.Id, m.Content, d)
-	response.Created(w, m)
-}
-
-func DeleteMessage(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	indice, err := strconv.Atoi(id)
-	if err != nil {
-		response.Deleted(w)
-		return
-	}
-	removeMessage(Message{Id: indice})
-	response.Deleted(w)
+	response.Created(w, appendMessage(m.Content, user.Id, d))
+	return
 }
